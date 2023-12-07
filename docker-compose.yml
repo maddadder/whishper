@@ -43,7 +43,10 @@ services:
 
   whishper:
     pull_policy: always
-    image: pluja/whishper:${WHISHPER_VERSION:-latest}
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: 192.168.1.151:32000/whisper
     env_file:
       - .env
     volumes:

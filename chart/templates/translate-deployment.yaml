@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: translate
+  name: translate
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: translate
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/default: "true"
+        io.kompose.service: translate
+    spec:
+      containers:
+        - env:
+            - name: LT_DISABLE_WEB_UI
+              value: "True"
+            - name: LT_UPDATE_MODELS
+              value: "True"
+          image: libretranslate/libretranslate:latest
+          livenessProbe:
+            exec:
+              command:
+                - ./venv/bin/python scripts/healthcheck.py
+            failureThreshold: 5
+            periodSeconds: 2
+            timeoutSeconds: 3
+          name: whisper-libretranslate
+          ports:
+            - containerPort: 5000
+          resources: {}
+          tty: true
+          volumeMounts:
+            - mountPath: /home/libretranslate/.local/share
+              name: translate-claim0
+            - mountPath: /home/libretranslate/.local/cache
+              name: translate-claim1
+      restartPolicy: Always
+      volumes:
+        - name: translate-claim0
+          persistentVolumeClaim:
+            claimName: translate-claim0
+        - name: translate-claim1
+          persistentVolumeClaim:
+            claimName: translate-claim1
+status: {}

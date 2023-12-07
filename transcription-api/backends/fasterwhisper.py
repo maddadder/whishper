@@ -4,6 +4,9 @@ import os, math
 from tqdm import tqdm  # type: ignore
 import uuid
 from faster_whisper import WhisperModel, download_model, decode_audio
+from dotenv import load_dotenv
+
+
 
 class FasterWhisperBackend(Backend):
     device: str = "cpu"  # cpu, cuda
@@ -16,8 +19,9 @@ class FasterWhisperBackend(Backend):
         self.__post_init__()
 
     def model_path(self) -> str:
+        load_dotenv()
         local_model_path = os.path.join(
-            os.environ["WHISPER_MODELS_DIR"], f"faster-whisper-{self.model_size}"
+            './whisper-models', f"faster-whisper-{self.model_size}"
         )
 
         if os.path.exists(local_model_path):
@@ -32,8 +36,9 @@ class FasterWhisperBackend(Backend):
 
     def get_model(self) -> None:
         print(f"Downloading model {self.model_size}...")
-        local_model_path = os.path.join(os.environ["WHISPER_MODELS_DIR"], f"faster-whisper-{self.model_size}")
-        local_model_cache = os.path.join(os.environ["WHISPER_MODELS_DIR"], f"faster-whisper-{self.model_size}", "cache")
+        load_dotenv()
+        local_model_path = os.path.join('./whisper-models', f"faster-whisper-{self.model_size}")
+        local_model_cache = os.path.join('./whisper-models', f"faster-whisper-{self.model_size}", "cache")
         # Check if directory exists
         if not os.path.exists(local_model_path):
             os.makedirs(local_model_path)

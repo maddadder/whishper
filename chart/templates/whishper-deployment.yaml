@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: whishper
+  name: whishper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: whishper
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/default: "true"
+        io.kompose.service: whishper
+    spec:
+      containers:
+        - env:
+            - name: PUBLIC_API_HOST
+              value: https://whisper.leenet.link
+            - name: PUBLIC_INTERNAL_API_HOST
+              value: http://0.0.0.0:80
+            - name: PUBLIC_TRANSLATION_API_HOST
+              value: https://translate.leenet.link
+            - name: PUBLIC_WHISHPER_PROFILE
+              value: cpu
+            - name: UPLOAD_DIR
+              value: /app/uploads
+            - name: WHISPER_MODELS_DIR
+              value: /app/models
+          image: 192.168.1.151:32000/whisper:latest
+          name: whishper
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+            - name: test
+              containerPort: 8080
+              protocol: TCP
+            - name: test2
+              containerPort: 5000
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /app/uploads
+              name: whishper-claim0
+            - mountPath: /var/log/whishper
+              name: whishper-claim1
+      restartPolicy: Always
+      volumes:
+        - name: whishper-claim0
+          persistentVolumeClaim:
+            claimName: whishper-claim0
+        - name: whishper-claim1
+          persistentVolumeClaim:
+            claimName: whishper-claim1
+status: {}

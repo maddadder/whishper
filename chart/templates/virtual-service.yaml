@@ -1,0 +1,59 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: leenet-gateway-{{ .Values.dnsName }}
+  namespace: {{ .Values.gatewayNamespace }}
+spec:
+  gateways:
+    - {{ .Values.gateway }}
+  hosts:
+    - {{ .Values.dnsName }}
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: whishper.{{ .Values.appNamespace }}.svc.cluster.local
+            port:
+              number: 3000
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: leenet-gateway-translate.leenet.link
+  namespace: {{ .Values.gatewayNamespace }}
+spec:
+  gateways:
+    - {{ .Values.gateway }}
+  hosts:
+    - translate.leenet.link
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: translate.{{ .Values.appNamespace }}.svc.cluster.local
+            port:
+              number: 5000
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: leenet-gateway-whisper-api.leenet.link
+  namespace: {{ .Values.gatewayNamespace }}
+spec:
+  gateways:
+    - {{ .Values.gateway }}
+  hosts:
+    - whisper.leenet.link
+  http:
+    - match:
+        - uri:
+            prefix: /api/transcriptions
+      route:
+        - destination:
+            host: whishper.{{ .Values.appNamespace }}.svc.cluster.local
+            port:
+              number: 8080
